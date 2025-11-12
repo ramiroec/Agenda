@@ -252,9 +252,6 @@ const AgendarConsulta = () => {
                 <Heart className="w-5 h-5 text-[#FF6B35]" fill="#FF6B35" />
                 <span className="text-sm font-semibold text-[#001F54]">Tu bienestar es nuestra prioridad</span>
               </div>
-              <p className="text-sm text-gray-500">
-                ¿Necesitas ayuda? Contáctanos al <span className="font-semibold text-[#0066CC]">+595 983 867308</span>
-              </p>
             </div>
           </div>
         </div>
