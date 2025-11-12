@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Calendar, ClipboardList, Menu, X, Phone, Mail } from 'lucide-react';
+import { Calendar, ClipboardList, Menu, X, Phone } from 'lucide-react';
 import AgendarConsulta from './pages/AgendarConsulta';
 import VerConsultas from './pages/VerConsultas';
 import './App.css';
