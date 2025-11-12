@@ -55,7 +55,7 @@ function Navbar() {
               }`}
             >
               <ClipboardList className="w-5 h-5" />
-              <span>VerConsultas</span>
+              <span>Ver Consultas</span>
             </Link>           
           </div>
 
