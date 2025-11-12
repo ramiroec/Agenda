@@ -46,15 +46,11 @@ const AgendarConsulta = () => {
             <div className="inline-flex items-center justify-center mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-blue-400/30 rounded-2xl blur-2xl animate-pulse"></div>
               <div className="relative bg-white rounded-2xl p-4 shadow-xl border-2 border-blue-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <div className="text-white text-3xl font-bold">+</div>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-2xl font-bold text-[#001F54]">MedCheck</div>
-                    <div className="text-xs tracking-wider text-[#0066CC] font-semibold">BIENESTAR CORPORATIVO</div>
-                  </div>
-                </div>
+                <img 
+                  src="/logo.png" 
+                  alt="MedCheck Logo" 
+                  className="h-16 object-contain"
+                />
               </div>
             </div>
             
@@ -267,7 +263,7 @@ const AgendarConsulta = () => {
                 <span className="text-sm font-semibold text-[#001F54]">Tu bienestar es nuestra prioridad</span>
               </div>
               <p className="text-sm text-gray-500">
-                ¿Necesitas ayuda? Contáctanos al <span className="font-semibold text-[#0066CC]">0800-MEDCHECK</span>
+                ¿Necesitas ayuda? Contáctanos al <span className="font-semibold text-[#0066CC]">+595 983 867308</span>
               </p>
             </div>
           </div>
