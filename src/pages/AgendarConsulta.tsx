@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Calendar, User, Phone, Mail, FileText, CheckCircle, AlertCircle, Heart, Sparkles } from 'lucide-react';
+import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Sparkles, Briefcase, Building } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const AgendarConsulta = () => {
   const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
+  const [empresa, setEmpresa] = useState('');
+  const [cargo, setCargo] = useState('');
   const [fecha, setFecha] = useState('');
   const [motivo, setMotivo] = useState('');
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
@@ -24,7 +25,7 @@ const AgendarConsulta = () => {
       // 1️⃣ Insertar persona
       const { data: persona, error: errorPersona } = await supabase
         .from('persona')
-        .insert([{ nombre, telefono, email }])
+        .insert([{ nombre, email, empresa, cargo }])
         .select()
         .single();
 
@@ -48,8 +49,9 @@ const AgendarConsulta = () => {
       // ✅ Éxito
       setMensaje({ tipo: 'exito', texto: '¡Tu consulta ha sido agendada exitosamente!' });
       setNombre('');
-      setTelefono('');
       setEmail('');
+      setEmpresa('');
+      setCargo('');
       setFecha('');
       setMotivo('');
     } catch (err: any) {
@@ -61,7 +63,6 @@ const AgendarConsulta = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 relative overflow-hidden">
-      {/* Efectos de fondo */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-200/30 to-blue-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
@@ -108,33 +109,48 @@ const AgendarConsulta = () => {
                     />
                   </div>
 
-                  {/* Teléfono y Email */}
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2.5 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-cyan-600" />
+                      Correo electrónico
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="ejemplo@mail.com"
+                      className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:bg-white focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+
+                  {/* Empresa y Cargo */}
                   <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2.5 flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-teal-600" />
-                        Teléfono
+                        <Building className="w-4 h-4 text-teal-600" />
+                        Empresa
                       </label>
                       <input
-                        type="tel"
-                        value={telefono}
-                        onChange={(e) => setTelefono(e.target.value)}
-                        placeholder="0981 234 567"
+                        type="text"
+                        value={empresa}
+                        onChange={(e) => setEmpresa(e.target.value)}
+                        placeholder="Ej: Díaz Gill Laboratorios"
                         className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition-all text-gray-800 placeholder-gray-400"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2.5 flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-cyan-600" />
-                        Correo electrónico
+                        <Briefcase className="w-4 h-4 text-emerald-600" />
+                        Cargo
                       </label>
                       <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="ejemplo@mail.com"
-                        className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:bg-white focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                        type="text"
+                        value={cargo}
+                        onChange={(e) => setCargo(e.target.value)}
+                        placeholder="Ej: Gerente de RRHH"
+                        className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition-all text-gray-800 placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -158,7 +174,7 @@ const AgendarConsulta = () => {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2.5 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-teal-600" />
-                      Motivo de consulta <span className="text-gray-400 font-normal text-xs">(opcional)</span>
+                      Estudios solicitados <span className="text-gray-400 font-normal text-xs">(opcional)</span>
                     </label>
                     <textarea
                       value={motivo}

@@ -1,0 +1,10 @@
+Agendar grupo de personas.
+quitar Telefono
+agregar Empresa 
+agregar Cargo
+
+En lugar de Modifivo de Consulta: Estudios solicitados.
+
+Agregar la opción para adjuntar archivos.
+
+Personalizar colores con Medcheck.
