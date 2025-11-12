@@ -43,16 +43,6 @@ const AgendarConsulta = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header con logo y título */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center mb-6 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-blue-400/30 rounded-2xl blur-2xl animate-pulse"></div>
-              <div className="relative bg-white rounded-2xl p-4 shadow-xl border-2 border-blue-100">
-                <img 
-                  src="/logo.png" 
-                  alt="MedCheck Logo" 
-                  className="h-16 object-contain"
-                />
-              </div>
-            </div>
             
             <h1 className="text-4xl sm:text-5xl font-bold text-[#001F54] mb-4">
               Agenda tu Consulta Médica
