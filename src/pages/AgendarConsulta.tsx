@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Briefcase, Building, Clock } from 'lucide-react';
+import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Briefcase, Building, Clock, Upload, X } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const AgendarConsulta = () => {
@@ -9,8 +9,30 @@ const AgendarConsulta = () => {
   const [cargo, setCargo] = useState('');
   const [fecha, setFecha] = useState('');
   const [motivo, setMotivo] = useState('');
+  const [archivo, setArchivo] = useState<File | null>(null);
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const TIPOS_PERMITIDOS = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'image/png', 'image/jpeg'];
+  const TAMAÑO_MAX = 5 * 1024 * 1024; // 5MB
+
+  const handleArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      setMensaje({ tipo: 'error', texto: 'Tipo de archivo no permitido. Usa: PDF, DOCX, XLSX, PNG o JPG.' });
+      return;
+    }
+
+    if (file.size > TAMAÑO_MAX) {
+      setMensaje({ tipo: 'error', texto: 'El archivo no debe superar 5MB.' });
+      return;
+    }
+
+    setArchivo(file);
+    setMensaje(null);
+  };
 
   const handleSubmit = async () => {
     if (!nombre || !fecha) {
@@ -21,7 +43,46 @@ const AgendarConsulta = () => {
     setLoading(true);
     setMensaje(null);
 
+    // función para sanear nombre de archivo
+    const sanitizeFileName = (name: string) => {
+      return name
+        .normalize('NFKD')                 // separar diacríticos
+        .replace(/[\u0300-\u036f]/g, '')   // eliminar marcas diacríticas
+        .replace(/[^a-zA-Z0-9._-]/g, '_')  // reemplazar chars inválidos por _
+        .replace(/_+/g, '_')               // colapsar guiones bajos múltiples
+        .replace(/^_+|_+$/g, '');          // quitar guiones bajos al inicio/fin
+    };
+
     try {
+      let archivoUrl: string | null = null;
+
+      // 1. Subir archivo si existe
+      if (archivo) {
+        const safeName = sanitizeFileName(archivo.name) || 'file';
+        const nombreArchivo = `${Date.now()}-${safeName}`;
+        const path = `archivos/${nombreArchivo}`;
+
+        const { error: errorArchivo } = await supabase.storage
+          .from('consultas')
+          .upload(path, archivo, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (errorArchivo) {
+          console.error('Error de Supabase (upload):', errorArchivo);
+          throw new Error(`Error al subir el archivo: ${errorArchivo.message}`);
+        }
+
+        // Obtener URL pública del archivo (getPublicUrl no retorna error)
+        const { data: urlData } = supabase.storage
+          .from('consultas')
+          .getPublicUrl(path);
+
+        archivoUrl = urlData?.publicUrl || null;
+      }
+
+      // 2. Insertar consulta con URL del archivo
       const { error: consultaError } = await supabase
         .from('consulta')
         .insert([
@@ -31,7 +92,8 @@ const AgendarConsulta = () => {
             empresa: empresa || null,
             cargo: cargo || null,
             fecha_consulta: fecha,
-            motivo: motivo || null
+            motivo: motivo || null,
+            archivo_url: archivoUrl
           }
         ]);
 
@@ -46,9 +108,13 @@ const AgendarConsulta = () => {
       setCargo('');
       setFecha('');
       setMotivo('');
-    } catch (err) {
+      setArchivo(null);
+    } catch (err: any) {
       console.error('Error:', err);
-      setMensaje({ tipo: 'error', texto: 'Error al agendar la consulta. Por favor intenta de nuevo.' });
+      setMensaje({
+        tipo: 'error',
+        texto: err?.message || 'Error al agendar la consulta. Por favor intenta de nuevo.'
+      });
     } finally {
       setLoading(false);
     }
@@ -205,6 +271,60 @@ const AgendarConsulta = () => {
                       className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#00A8E8] focus:ring-4 focus:ring-sky-100 outline-none transition-all resize-none text-gray-800 placeholder-gray-400"
                     />
                   </div>
+                </div>
+
+                {/* Archivo Adjunto */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Archivo adjunto <span className="text-gray-400 font-normal text-sm">(PDF, DOCX, XLSX, PNG, JPG - máx 5MB)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      onChange={handleArchivoChange}
+                      accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg"
+                      disabled={loading}
+                      className="hidden"
+                      id="archivo-input"
+                    />
+                    <label
+                      htmlFor="archivo-input"
+                      className="block w-full cursor-pointer"
+                    >
+                      <div className="w-full p-6 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#00A8E8] hover:bg-blue-50 transition-all">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <Upload className="w-8 h-8 text-gray-400" />
+                          <div className="text-center">
+                            <p className="text-sm font-semibold text-gray-700">
+                              Haz clic para seleccionar un archivo
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              o arrastra y suelta aquí
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+
+                  {archivo && (
+                    <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-[#0066CC]" />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">{archivo.name}</p>
+                          <p className="text-xs text-gray-500">{(archivo.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setArchivo(null)}
+                        className="p-2 hover:bg-blue-100 rounded-lg transition-all"
+                      >
+                        <X className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Botón de envío */}

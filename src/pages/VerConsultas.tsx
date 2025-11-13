@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Calendar, User, Mail, FileText, Search, ClipboardList, AlertCircle, Building, Briefcase, Filter } from 'lucide-react';
+import { Calendar, User, Mail, FileText, Search, ClipboardList, AlertCircle, Building, Briefcase, Filter, Download } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 interface Consulta {
@@ -10,6 +10,7 @@ interface Consulta {
   cargo: string | null;
   fecha_consulta: string;
   motivo: string | null;
+  archivo_url: string | null;
 }
 
 const VerConsultas = () => {
@@ -217,6 +218,32 @@ const VerConsultas = () => {
                                 <p className="text-xs text-gray-500 font-medium mb-1">Estudios solicitados</p>
                                 <p className="text-sm text-gray-700 leading-relaxed">{c.motivo}</p>
                               </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {c.archivo_url && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-[#FF6B35] to-[#FF8C42] rounded-lg flex items-center justify-center">
+                                  <FileText className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500 font-medium">Archivo adjunto</p>
+                                  <p className="text-sm text-gray-700 font-medium">Documento disponible</p>
+                                </div>
+                              </div>
+                              <a
+                                href={c.archivo_url}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm"
+                              >
+                                <Download className="w-4 h-4" />
+                                Descargar
+                              </a>
                             </div>
                           </div>
                         )}
