@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Briefcase, Building, Clock } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 const AgendarConsulta = () => {
   const [nombre, setNombre] = useState('');
@@ -20,8 +21,24 @@ const AgendarConsulta = () => {
     setLoading(true);
     setMensaje(null);
 
-    // Simulación de envío
-    setTimeout(() => {
+    try {
+      const { error: consultaError } = await supabase
+        .from('consulta')
+        .insert([
+          {
+            nombre,
+            email: email || null,
+            empresa: empresa || null,
+            cargo: cargo || null,
+            fecha_consulta: fecha,
+            motivo: motivo || null
+          }
+        ]);
+
+      if (consultaError) {
+        throw consultaError;
+      }
+
       setMensaje({ tipo: 'exito', texto: '¡Tu consulta ha sido agendada exitosamente!' });
       setNombre('');
       setEmail('');
@@ -29,8 +46,12 @@ const AgendarConsulta = () => {
       setCargo('');
       setFecha('');
       setMotivo('');
+    } catch (err) {
+      console.error('Error:', err);
+      setMensaje({ tipo: 'error', texto: 'Error al agendar la consulta. Por favor intenta de nuevo.' });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (

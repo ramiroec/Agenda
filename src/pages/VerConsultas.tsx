@@ -2,18 +2,14 @@ import { useEffect, useState } from 'react';
 import { Calendar, User, Mail, FileText, Search, ClipboardList, AlertCircle, Building, Briefcase, Filter } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
-interface Persona {
+interface Consulta {
+  id: number;
   nombre: string;
   email: string | null;
   empresa: string | null;
   cargo: string | null;
-}
-
-interface Consulta {
-  id: number;
   fecha_consulta: string;
   motivo: string | null;
-  persona: Persona | null;
 }
 
 const VerConsultas = () => {
@@ -29,17 +25,7 @@ const VerConsultas = () => {
     try {
       const { data, error: supabaseError } = await supabase
         .from('consulta')
-        .select(`
-          id,
-          fecha_consulta,
-          motivo,
-          persona:persona_id (
-            nombre,
-            email,
-            empresa,
-            cargo
-          )
-        `)
+        .select('*')
         .eq('fecha_consulta', fecha)
         .order('fecha_consulta', { ascending: true });
 
@@ -47,22 +33,7 @@ const VerConsultas = () => {
         setError('Error al cargar las consultas');
         console.error('Error de Supabase:', supabaseError);
       } else {
-        // Normalizar la relación "persona" que puede venir como arreglo desde Supabase
-        const mapped: Consulta[] = (data || []).map((row: any) => {
-          const rawPersona = row.persona;
-          const personaObj: Persona | null = Array.isArray(rawPersona)
-            ? rawPersona[0] ?? null
-            : rawPersona ?? null;
-
-          return {
-            id: row.id,
-            fecha_consulta: row.fecha_consulta,
-            motivo: row.motivo,
-            persona: personaObj
-          };
-        });
-
-        setConsultas(mapped);
+        setConsultas(data || []);
       }
     } catch (err) {
       setError('Error al conectar con la base de datos');
@@ -200,7 +171,7 @@ const VerConsultas = () => {
                             <div>
                               <h3 className="text-lg font-bold text-[#001F54] flex items-center gap-2">
                                 <User className="w-5 h-5 text-[#0066CC]" />
-                                {c.persona?.nombre}
+                                {c.nombre}
                               </h3>
                             </div>
                           </div>
@@ -212,7 +183,7 @@ const VerConsultas = () => {
                             <div>
                               <p className="text-xs text-gray-500 font-medium">Email</p>
                               <p className="text-sm text-gray-700 font-medium">
-                                {c.persona?.email || 'No especificado'}
+                                {c.email || 'No especificado'}
                               </p>
                             </div>
                           </div>
@@ -222,7 +193,7 @@ const VerConsultas = () => {
                             <div>
                               <p className="text-xs text-gray-500 font-medium">Empresa</p>
                               <p className="text-sm text-gray-700 font-medium">
-                                {c.persona?.empresa || 'No especificado'}
+                                {c.empresa || 'No especificado'}
                               </p>
                             </div>
                           </div>
@@ -232,7 +203,7 @@ const VerConsultas = () => {
                             <div>
                               <p className="text-xs text-gray-500 font-medium">Cargo</p>
                               <p className="text-sm text-gray-700 font-medium">
-                                {c.persona?.cargo || 'No especificado'}
+                                {c.cargo || 'No especificado'}
                               </p>
                             </div>
                           </div>
