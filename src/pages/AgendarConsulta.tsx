@@ -146,18 +146,60 @@ const AgendarConsulta = () => {
             
             <div className="p-8 sm:p-12">
               <div className="space-y-6">
-                {/* Información Personal Section */}
+                {/* Información Empresa Section */}
                 <div className="border-l-4 border-[#0066CC] pl-4 mb-8">
                   <h2 className="text-xl font-bold text-[#001F54] flex items-center gap-2">
-                    <User className="w-5 h-5 text-[#0066CC]" />
+                    <Building className="w-5 h-5 text-[#0066CC]" />
+                    Información Empresa
+                  </h2>
+                </div>
+
+                {/* Empresa */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Empresa *
+                  </label>
+                  <div className="relative">
+                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={empresa}
+                      onChange={(e) => setEmpresa(e.target.value)}
+                      placeholder="Díaz Gill Laboratorios"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Cargo */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Cargo
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={cargo}
+                      onChange={(e) => setCargo(e.target.value)}
+                      placeholder="Gerente de RRHH"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Información Personal Section */}
+                <div className="border-l-4 border-[#FF6B35] pl-4 mt-10 mb-8">
+                  <h2 className="text-xl font-bold text-[#001F54] flex items-center gap-2">
+                    <User className="w-5 h-5 text-[#FF6B35]" />
                     Información Personal
                   </h2>
                 </div>
 
-                {/* Nombre */}
+                {/* Nombre Colaborador */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nombre completo *
+                    Nombre Colaborador *
                   </label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -166,7 +208,7 @@ const AgendarConsulta = () => {
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
                       placeholder="Ej: María González López"
-                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
                     />
                   </div>
                 </div>
@@ -183,51 +225,8 @@ const AgendarConsulta = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="ejemplo@empresa.com"
-                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
                     />
-                  </div>
-                </div>
-
-                {/* Información Laboral Section */}
-                <div className="border-l-4 border-[#FF6B35] pl-4 mt-10 mb-8">
-                  <h2 className="text-xl font-bold text-[#001F54] flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-[#FF6B35]" />
-                    Información Laboral
-                  </h2>
-                </div>
-
-                {/* Empresa y Cargo */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Empresa
-                    </label>
-                    <div className="relative">
-                      <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={empresa}
-                        onChange={(e) => setEmpresa(e.target.value)}
-                        placeholder="Díaz Gill Laboratorios"
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Cargo
-                    </label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={cargo}
-                        onChange={(e) => setCargo(e.target.value)}
-                        placeholder="Gerente de RRHH"
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
-                      />
-                    </div>
                   </div>
                 </div>
 
