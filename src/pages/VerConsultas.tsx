@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Calendar, User, Mail, FileText, Search, ClipboardList, AlertCircle, Building, Briefcase, Filter, Download } from 'lucide-react';
+import { 
+  Calendar, User, Mail, FileText, Search, 
+  ClipboardList, AlertCircle, Building, 
+  Briefcase, Filter, Download, Phone, 
+  FileDigit, Clock, UserCircle, 
+  ChevronDown, ChevronUp, Lock, Eye, EyeOff
+} from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 interface Consulta {
@@ -11,6 +17,9 @@ interface Consulta {
   fecha_consulta: string;
   motivo: string | null;
   archivo_url: string | null;
+  creado_en: string | null;
+  numero_documento: string | null;
+  telefono: string | null;
 }
 
 const VerConsultas = () => {
@@ -18,6 +27,38 @@ const VerConsultas = () => {
   const [consultas, setConsultas] = useState<Consulta[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // Autenticación simple por contraseña (medcheck)
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('verConsultasAuth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handlePasswordSubmit = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setAuthError(null);
+    if (passwordInput.trim() === 'medcheck') {
+      try { sessionStorage.setItem('verConsultasAuth', 'true'); } catch {}
+      setAuthenticated(true);
+      setPasswordInput('');
+    } else {
+      setAuthError('Contraseña incorrecta. Intenta nuevamente.');
+    }
+  };
+
+  useEffect(() => {
+    // Si ya está autenticado, cargar consultas (comportamiento actual)
+    if (authenticated && fecha) {
+      cargarConsultas();
+    }
+  }, [authenticated, fecha]);
 
   const cargarConsultas = async () => {
     setLoading(true);
@@ -45,9 +86,86 @@ const VerConsultas = () => {
   };
 
   useEffect(() => {
-    if (fecha) cargarConsultas();
-  }, [fecha]);
+    if (authenticated && fecha) cargarConsultas();
+  }, [fecha, authenticated]);
 
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const formatFecha = (fechaString: string) => {
+    return new Date(fechaString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatHora = (timestamp: string) => {
+    return new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Si no está autenticado, mostrar modal de contraseña amigable
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-sky-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 relative">
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-br from-[#0066CC] to-[#00A8E8] w-16 h-16 rounded-xl flex items-center justify-center shadow-md">
+            <Lock className="w-7 h-7 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#001F54] text-center mt-6">Acceso a Consultas</h2>
+          <p className="text-center text-gray-600 mt-2 mb-6">Ingresa la contraseña para ver las consultas programadas</p>
+
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <label className="block">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Contraseña"
+                  className="w-full pr-12 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 p-1"
+                  aria-label="Mostrar contraseña"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </label>
+
+            {authError && <p className="text-sm text-red-600 text-center">{authError}</p>}
+
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="submit"
+                className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white rounded-xl font-semibold"
+              >
+                Ingresar
+              </button>
+              <button
+                type="button"
+                onClick={() => { setPasswordInput(''); setAuthError(null); }}
+                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700"
+              >
+                Limpiar
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center mt-2">Pista: pregunta al administrador si tienes problemas</p>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Si está autenticado, renderizar la pantalla completa (contenido existente)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-50 relative overflow-hidden">
       {/* Efectos decorativos */}
@@ -157,15 +275,19 @@ const VerConsultas = () => {
                     </div>
                   </div>
 
-                  {/* Lista de consultas - Cards en lugar de tabla para mejor responsive */}
+                  {/* Lista de consultas */}
                   <div className="space-y-4">
                     {consultas.map((c, index) => (
                       <div
                         key={c.id}
-                        className="group bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 hover:border-[#0066CC] hover:shadow-lg transition-all duration-300"
+                        className="group bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-[#0066CC] hover:shadow-lg transition-all duration-300"
                       >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
+                        {/* Header colapsable */}
+                        <button
+                          onClick={() => toggleExpand(c.id)}
+                          className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-gradient-to-br from-[#FF6B35] to-[#FF8C42] rounded-lg flex items-center justify-center text-white font-bold shadow-md">
                               {index + 1}
                             </div>
@@ -174,77 +296,217 @@ const VerConsultas = () => {
                                 <User className="w-5 h-5 text-[#0066CC]" />
                                 {c.nombre}
                               </h3>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center gap-3">
-                            <Mail className="w-4 h-4 text-[#00A8E8] flex-shrink-0" />
-                            <div>
-                              <p className="text-xs text-gray-500 font-medium">Email</p>
-                              <p className="text-sm text-gray-700 font-medium">
-                                {c.email || 'No especificado'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <Building className="w-4 h-4 text-[#0066CC] flex-shrink-0" />
-                            <div>
-                              <p className="text-xs text-gray-500 font-medium">Empresa</p>
-                              <p className="text-sm text-gray-700 font-medium">
-                                {c.empresa || 'No especificado'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <Briefcase className="w-4 h-4 text-[#FF6B35] flex-shrink-0" />
-                            <div>
-                              <p className="text-xs text-gray-500 font-medium">Cargo</p>
-                              <p className="text-sm text-gray-700 font-medium">
-                                {c.cargo || 'No especificado'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {c.motivo && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="flex items-start gap-3">
-                              <FileText className="w-4 h-4 text-[#00A8E8] flex-shrink-0 mt-1" />
-                              <div className="flex-1">
-                                <p className="text-xs text-gray-500 font-medium mb-1">Estudios solicitados</p>
-                                <p className="text-sm text-gray-700 leading-relaxed">{c.motivo}</p>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                                  <Calendar className="w-4 h-4" />
+                                  {formatFecha(c.fecha_consulta)}
+                                </span>
+                                {c.creado_en && (
+                                  <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                                    <Clock className="w-4 h-4" />
+                                    Registrado: {formatHora(c.creado_en)}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
-                        )}
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium px-3 py-1 bg-blue-50 text-[#0066CC] rounded-full">
+                              Ver detalles
+                            </span>
+                            {expandedId === c.id ? (
+                              <ChevronUp className="w-5 h-5 text-gray-500" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-gray-500" />
+                            )}
+                          </div>
+                        </button>
 
-                        {c.archivo_url && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-[#FF6B35] to-[#FF8C42] rounded-lg flex items-center justify-center">
-                                  <FileText className="w-5 h-5 text-white" />
+                        {/* Contenido expandible */}
+                        {expandedId === c.id && (
+                          <div className="px-6 pb-6 border-t border-gray-200 pt-4 animate-fadeIn">
+                            {/* Sección 1: Datos de quien Agenda */}
+                            <div className="mb-6">
+                              <div className="flex items-center gap-2 mb-4">
+                                <UserCircle className="w-5 h-5 text-[#0066CC]" />
+                                <h4 className="font-bold text-lg text-[#001F54]">
+                                  Datos de quien Agenda
+                                </h4>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <Building className="w-4 h-4 text-[#0066CC] flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Empresa</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.empresa || 'No especificada'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-3">
+                                    <Briefcase className="w-4 h-4 text-[#FF6B35] flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Cargo</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.cargo || 'No especificado'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-3">
+                                    <Phone className="w-4 h-4 text-green-600 flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Teléfono</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.telefono || 'No especificado'}
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 font-medium">Archivo adjunto</p>
-                                  <p className="text-sm text-gray-700 font-medium">Documento disponible</p>
+
+                                <div className="space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <Mail className="w-4 h-4 text-[#00A8E8] flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Correo</p>
+                                      <p className="text-sm text-gray-800 font-medium break-all">
+                                        {c.email || 'No especificado'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {c.creado_en && (
+                                    <div className="flex items-start gap-3">
+                                      <Clock className="w-4 h-4 text-purple-600 flex-shrink-0 mt-1" />
+                                      <div>
+                                        <p className="text-xs text-gray-500 font-medium">Fecha de registro</p>
+                                        <p className="text-sm text-gray-800 font-medium">
+                                          {new Date(c.creado_en).toLocaleDateString('es-ES', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                              <a
-                                href={c.archivo_url}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm"
-                              >
-                                <Download className="w-4 h-4" />
-                                Descargar
-                              </a>
                             </div>
+
+                            {/* Sección 2: Datos del Colaborador Agendado */}
+                            <div className="mb-6">
+                              <div className="flex items-center gap-2 mb-4">
+                                <User className="w-5 h-5 text-[#FF6B35]" />
+                                <h4 className="font-bold text-lg text-[#001F54]">
+                                  Datos del Colaborador Agendado
+                                </h4>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <UserCircle className="w-4 h-4 text-[#0066CC] flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Nombre completo</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.nombre}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-3">
+                                    <Briefcase className="w-4 h-4 text-[#FF6B35] flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Cargo que ocupará</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.cargo || 'No especificado'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <FileDigit className="w-4 h-4 text-green-600 flex-shrink-0 mt-1" />
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-medium">Número de documento</p>
+                                      <p className="text-sm text-gray-800 font-medium">
+                                        {c.numero_documento || 'No especificado'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Sección 3: Detalles de la Consulta */}
+                            <div className="mb-6">
+                              <div className="flex items-center gap-2 mb-4">
+                                <ClipboardList className="w-5 h-5 text-[#00A8E8]" />
+                                <h4 className="font-bold text-lg text-[#001F54]">
+                                  Detalles de la Consulta
+                                </h4>
+                              </div>
+
+                              <div className="space-y-4">
+                                <div className="flex items-start gap-3">
+                                  <Calendar className="w-4 h-4 text-[#FF6B35] flex-shrink-0 mt-1" />
+                                  <div>
+                                    <p className="text-xs text-gray-500 font-medium">Fecha de consulta</p>
+                                    <p className="text-sm text-gray-800 font-medium">
+                                      {formatFecha(c.fecha_consulta)}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {c.motivo && (
+                                  <div className="flex items-start gap-3">
+                                    <FileText className="w-4 h-4 text-[#00A8E8] flex-shrink-0 mt-1" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-500 font-medium mb-1">
+                                        Estudios solicitados
+                                      </p>
+                                      <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-3 rounded-lg">
+                                        {c.motivo}
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Sección 4: Archivo adjunto */}
+                            {c.archivo_url && (
+                              <div className="pt-4 border-t border-gray-200">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8C42] rounded-lg flex items-center justify-center">
+                                      <FileText className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-900">Archivo adjunto</p>
+                                      <p className="text-xs text-gray-500">Documento disponible para descarga</p>
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={c.archivo_url}
+                                    download
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm whitespace-nowrap"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    Descargar archivo
+                                  </a>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -267,7 +529,7 @@ const VerConsultas = () => {
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white font-semibold rounded-xl hover:shadow-lg transition-all"
                   >
                     <Calendar className="w-5 h-5" />
-                    Ver hoy
+                    Ver consultas de hoy
                   </button>
                 </div>
               )}
