@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Briefcase, Building, Clock, Upload, X } from 'lucide-react';
+import { Calendar, User, Mail, FileText, CheckCircle, AlertCircle, Heart, Briefcase, Building, Clock, Upload, X, Phone } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const AgendarConsulta = () => {
@@ -7,6 +7,9 @@ const AgendarConsulta = () => {
   const [email, setEmail] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [cargo, setCargo] = useState('');
+  const [cargoColaborador, setCargoColaborador] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [numeroDocumento, setNumeroDocumento] = useState('');
   const [fecha, setFecha] = useState('');
   const [motivo, setMotivo] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
@@ -55,6 +58,10 @@ const AgendarConsulta = () => {
 
     try {
       let archivoUrl: string | null = null;
+      // si se indicó cargo del colaborador, lo agregamos al motivo para persistirlo sin cambiar el esquema
+      const motivoFinal = cargoColaborador
+        ? `Cargo del colaborador: ${cargoColaborador}\n\n${motivo || ''}`
+        : motivo || null;
 
       // 1. Subir archivo si existe
       if (archivo) {
@@ -92,7 +99,9 @@ const AgendarConsulta = () => {
             empresa: empresa || null,
             cargo: cargo || null,
             fecha_consulta: fecha,
-            motivo: motivo || null,
+            motivo: motivoFinal,
+            telefono: telefono || null,
+            numero_documento: numeroDocumento || null,
             archivo_url: archivoUrl
           }
         ]);
@@ -106,6 +115,9 @@ const AgendarConsulta = () => {
       setEmail('');
       setEmpresa('');
       setCargo('');
+      setCargoColaborador('');
+      setTelefono('');
+      setNumeroDocumento('');
       setFecha('');
       setMotivo('');
       setArchivo(null);
@@ -146,18 +158,18 @@ const AgendarConsulta = () => {
             
             <div className="p-8 sm:p-12">
               <div className="space-y-6">
-                {/* Información de la Empresa Section */}
+                {/* Datos de quien Agenda Section */}
                 <div className="border-l-4 border-[#0066CC] pl-4 mb-8">
                   <h2 className="text-xl font-bold text-[#001F54] flex items-center gap-2">
                     <Building className="w-5 h-5 text-[#0066CC]" />
-                    Información de la Empresa
+                    Datos de quien Agenda
                   </h2>
                 </div>
 
-                {/* Empresa */}
+                {/* Empresa que agenda */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Empresa *
+                    Empresa que agenda
                   </label>
                   <div className="relative">
                     <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -171,10 +183,10 @@ const AgendarConsulta = () => {
                   </div>
                 </div>
 
-                {/* Cargo */}
+                {/* Cargo de la persona que agenda */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Cargo
+                    Cargo de la persona que agenda
                   </label>
                   <div className="relative">
                     <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -188,11 +200,45 @@ const AgendarConsulta = () => {
                   </div>
                 </div>
 
-                {/* Información Personal Section */}
+                {/* Correo de la persona que agenda */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Correo de la persona que agenda
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="ejemplo@empresa.com"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Teléfono de la persona que agenda */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Teléfono de la persona que agenda
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={telefono}
+                      onChange={(e) => setTelefono(e.target.value)}
+                      placeholder="0981 123 456"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#0066CC] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Datos del Colaborador Agendado */}
                 <div className="border-l-4 border-[#FF6B35] pl-4 mt-10 mb-8">
                   <h2 className="text-xl font-bold text-[#001F54] flex items-center gap-2">
                     <User className="w-5 h-5 text-[#FF6B35]" />
-                    Información Personal
+                    Datos del Colaborador Agendado
                   </h2>
                 </div>
 
@@ -213,18 +259,35 @@ const AgendarConsulta = () => {
                   </div>
                 </div>
 
-                {/* Email */}
+                {/* Cargo que ocupará el colaborador */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Correo electrónico
+                    Cargo que ocupará el colaborador
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="ejemplo@empresa.com"
+                      type="text"
+                      value={cargoColaborador}
+                      onChange={(e) => setCargoColaborador(e.target.value)}
+                      placeholder="Ej: Analista de Calidad"
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Número de documento del colaborador */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Número de documento del colaborador
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={numeroDocumento}
+                      onChange={(e) => setNumeroDocumento(e.target.value)}
+                      placeholder="Ej: 12345678"
                       className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#FF6B35] focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-800 placeholder-gray-400"
                     />
                   </div>

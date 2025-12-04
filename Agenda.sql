@@ -8,5 +8,7 @@ create table public.consulta (
   motivo text null,
   archivo_url text null,
   creado_en timestamp without time zone null default now(),
+  numero_documento character varying(50) null,
+  telefono character varying(20) null,
   constraint consulta_pkey primary key (id)
 ) TABLESPACE pg_default;
