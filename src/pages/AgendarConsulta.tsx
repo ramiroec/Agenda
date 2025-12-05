@@ -46,19 +46,17 @@ const AgendarConsulta = () => {
     setLoading(true);
     setMensaje(null);
 
-    // función para sanear nombre de archivo
     const sanitizeFileName = (name: string) => {
       return name
-        .normalize('NFKD')                 // separar diacríticos
-        .replace(/[\u0300-\u036f]/g, '')   // eliminar marcas diacríticas
-        .replace(/[^a-zA-Z0-9._-]/g, '_')  // reemplazar chars inválidos por _
-        .replace(/_+/g, '_')               // colapsar guiones bajos múltiples
-        .replace(/^_+|_+$/g, '');          // quitar guiones bajos al inicio/fin
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
     };
 
     try {
       let archivoUrl: string | null = null;
-      // si se indicó cargo del colaborador, lo agregamos al motivo para persistirlo sin cambiar el esquema
       const motivoFinal = cargoColaborador
         ? `Cargo del colaborador: ${cargoColaborador}\n\n${motivo || ''}`
         : motivo || null;
@@ -77,11 +75,9 @@ const AgendarConsulta = () => {
           });
 
         if (errorArchivo) {
-          console.error('Error de Supabase (upload):', errorArchivo);
           throw new Error(`Error al subir el archivo: ${errorArchivo.message}`);
         }
 
-        // Obtener URL pública del archivo (getPublicUrl no retorna error)
         const { data: urlData } = supabase.storage
           .from('consultas')
           .getPublicUrl(path);
@@ -89,7 +85,7 @@ const AgendarConsulta = () => {
         archivoUrl = urlData?.publicUrl || null;
       }
 
-      // 2. Insertar consulta con URL del archivo
+      // 2. Insertar consulta
       const { error: consultaError } = await supabase
         .from('consulta')
         .insert([
@@ -110,7 +106,49 @@ const AgendarConsulta = () => {
         throw consultaError;
       }
 
-      setMensaje({ tipo: 'exito', texto: '¡Tu consulta ha sido agendada exitosamente!' });
+      // 3. Enviar correo de confirmación
+      try {
+        const emailData = {
+          nombre,
+          email,
+          empresa,
+          cargo,
+          cargoColaborador,
+          telefono,
+          numeroDocumento,
+          fecha,
+          motivo: motivoFinal,
+          archivo: archivo ? {
+            name: archivo.name,
+            size: archivo.size,
+            type: archivo.type
+          } : null
+        };
+
+        const response = await fetch('https://vps-aff6ee56.vps.ovh.ca/agenda-api/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(emailData)
+        });
+
+        const emailResult = await response.json();
+
+        if (!emailResult.success) {
+          console.warn('Correo no enviado, pero consulta agendada:', emailResult.message);
+        }
+      } catch (emailError) {
+        console.warn('Error al enviar correo (consulta igualmente agendada):', emailError);
+      }
+
+      // 4. Mostrar mensaje de éxito
+      setMensaje({
+        tipo: 'exito',
+        texto: '¡Tu consulta ha sido agendada exitosamente! Te hemos enviado un correo de confirmación.'
+      });
+
+      // 5. Limpiar formulario
       setNombre('');
       setEmail('');
       setEmpresa('');
@@ -121,6 +159,7 @@ const AgendarConsulta = () => {
       setFecha('');
       setMotivo('');
       setArchivo(null);
+
     } catch (err: any) {
       console.error('Error:', err);
       setMensaje({
@@ -137,12 +176,12 @@ const AgendarConsulta = () => {
       {/* Elementos decorativos de fondo */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-blue-200/20 to-sky-200/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-orange-200/15 to-blue-200/15 rounded-full blur-3xl"></div>
-      
+
       <div className="relative py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header con logo y título */}
           <div className="text-center mb-10">
-            
+
             <h1 className="text-4xl sm:text-5xl font-bold text-[#001F54] mb-4">
               Agenda tu Consulta Médica
             </h1>
@@ -155,7 +194,7 @@ const AgendarConsulta = () => {
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
             {/* Barra superior decorativa */}
             <div className="h-1.5 bg-gradient-to-r from-[#0066CC] via-[#FF6B35] to-[#00A8E8]"></div>
-            
+
             <div className="p-8 sm:p-12">
               <div className="space-y-6">
                 {/* Datos de quien Agenda Section */}
@@ -418,11 +457,10 @@ const AgendarConsulta = () => {
               {/* Mensaje de resultado */}
               {mensaje && (
                 <div
-                  className={`mt-8 p-5 rounded-xl flex items-start gap-4 transition-all border-2 ${
-                    mensaje.tipo === 'exito'
+                  className={`mt-8 p-5 rounded-xl flex items-start gap-4 transition-all border-2 ${mensaje.tipo === 'exito'
                       ? 'bg-green-50 border-green-200'
                       : 'bg-red-50 border-red-200'
-                  }`}
+                    }`}
                 >
                   {mensaje.tipo === 'exito' ? (
                     <CheckCircle className="w-7 h-7 text-green-600 flex-shrink-0 mt-0.5" />
@@ -431,9 +469,8 @@ const AgendarConsulta = () => {
                   )}
                   <div>
                     <p
-                      className={`font-bold text-lg ${
-                        mensaje.tipo === 'exito' ? 'text-green-800' : 'text-red-800'
-                      }`}
+                      className={`font-bold text-lg ${mensaje.tipo === 'exito' ? 'text-green-800' : 'text-red-800'
+                        }`}
                     >
                       {mensaje.texto}
                     </p>
