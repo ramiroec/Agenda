@@ -16,7 +16,14 @@ const AgendarConsulta = () => {
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const TIPOS_PERMITIDOS = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'image/png', 'image/jpeg'];
+  const TIPOS_PERMITIDOS = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel', // agregado para .xls
+    'image/png',
+    'image/jpeg'
+  ];
   const TAMAÑO_MAX = 5 * 1024 * 1024; // 5MB
 
   const handleArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
