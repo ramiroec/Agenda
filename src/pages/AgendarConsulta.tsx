@@ -383,7 +383,7 @@ const AgendarConsulta = () => {
                     <input
                       type="file"
                       onChange={handleArchivoChange}
-                      accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg"
+                      accept=".pdf,.docx,.xlsx,.xls,.png,.jpg,.jpeg"
                       disabled={loading}
                       className="hidden"
                       id="archivo-input"
