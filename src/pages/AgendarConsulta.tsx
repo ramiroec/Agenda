@@ -29,19 +29,7 @@ const AgendarConsulta = () => {
   const handleArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!TIPOS_PERMITIDOS.includes(file.type)) {
-      setMensaje({ tipo: 'error', texto: 'Tipo de archivo no permitido. Usa: PDF, DOCX, XLSX, PNG o JPG.' });
-      return;
-    }
-
-    if (file.size > TAMAÑO_MAX) {
-      setMensaje({ tipo: 'error', texto: 'El archivo no debe superar 5MB.' });
-      return;
-    }
-
-    setArchivo(file);
-    setMensaje(null);
+    validarYSetearArchivo(file);
   };
 
   const handleSubmit = async () => {
@@ -177,6 +165,43 @@ const AgendarConsulta = () => {
       setLoading(false);
     }
   };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    validarYSetearArchivo(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const validarYSetearArchivo = (file: File) => {
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      setMensaje({
+        tipo: 'error',
+        texto: 'Tipo de archivo no permitido. Usa: PDF, DOCX, XLSX, PNG o JPG.'
+      });
+      return;
+    }
+
+    if (file.size > TAMAÑO_MAX) {
+      setMensaje({
+        tipo: 'error',
+        texto: 'El archivo no debe superar 5MB.'
+      });
+      return;
+    }
+
+    setArchivo(file);
+    setMensaje(null);
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-50 relative overflow-hidden">
@@ -399,7 +424,11 @@ const AgendarConsulta = () => {
                       htmlFor="archivo-input"
                       className="block w-full cursor-pointer"
                     >
-                      <div className="w-full p-6 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#00A8E8] hover:bg-blue-50 transition-all">
+                      <div
+                        className="w-full p-6 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#00A8E8] hover:bg-blue-50 transition-all"
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                      >
                         <div className="flex flex-col items-center justify-center gap-3">
                           <Upload className="w-8 h-8 text-gray-400" />
                           <div className="text-center">
@@ -465,8 +494,8 @@ const AgendarConsulta = () => {
               {mensaje && (
                 <div
                   className={`mt-8 p-5 rounded-xl flex items-start gap-4 transition-all border-2 ${mensaje.tipo === 'exito'
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
                     }`}
                 >
                   {mensaje.tipo === 'exito' ? (
