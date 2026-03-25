@@ -7,6 +7,7 @@ import {
   ChevronDown, ChevronUp, Lock, Eye, EyeOff
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
+import * as XLSX from 'xlsx';
 
 interface Consulta {
   id: number;
@@ -85,6 +86,87 @@ const VerConsultas = () => {
     }
   };
 
+  const descargarExcel = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Obtener el mes y año de la fecha seleccionada
+      const [year, month] = fecha.split('-');
+      
+      // Cargar todas las consultas del mes
+      const { data, error: supabaseError } = await supabase
+        .from('consulta')
+        .select('*')
+        .gte('fecha_consulta', `${year}-${month}-01`)
+        .lt('fecha_consulta', month === '12' 
+          ? `${parseInt(year) + 1}-01-01` 
+          : `${year}-${String(parseInt(month) + 1).padStart(2, '0')}-01`)
+        .order('fecha_consulta', { ascending: true });
+
+      if (supabaseError) {
+        setError('Error al descargar las consultas');
+        console.error('Error de Supabase:', supabaseError);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setError('No hay consultas para este mes');
+        return;
+      }
+
+      // Preparar datos para Excel
+      const excelData = data.map((c: Consulta) => ({
+        'Nombre': c.nombre || '',
+        'Empresa': c.empresa || '',
+        'Cargo': c.cargo || '',
+        'Teléfono': c.telefono || '',
+        'Email': c.email || '',
+        'Documento': c.numero_documento || '',
+        'Fecha de Consulta': formatFecha(c.fecha_consulta),
+        'Hora Registro': c.creado_en ? formatHora(c.creado_en) : '',
+        'Estudios Solicitados': c.motivo || ''
+      }));
+
+      // Crear workbook y worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Consultas');
+
+      // Ajustar ancho de columnas
+      const colWidths = [
+        { wch: 20 },  // Nombre
+        { wch: 25 },  // Empresa
+        { wch: 20 },  // Cargo
+        { wch: 15 },  // Teléfono
+        { wch: 25 },  // Email
+        { wch: 15 },  // Documento
+        { wch: 15 },  // Fecha
+        { wch: 15 },  // Hora
+        { wch: 35 }   // Estudios
+      ];
+      ws['!cols'] = colWidths;
+
+      // Generar nombre del archivo con mes y año
+      const monthNames = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      ];
+      const monthIndex = parseInt(month) - 1;
+      const monthNameText = monthNames[monthIndex];
+      const filename = `Agendamientos_${monthNameText}_${year}.xlsx`;
+
+      // Descargar archivo
+      XLSX.writeFile(wb, filename);
+      
+    } catch (err) {
+      setError('Error al descargar el archivo');
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authenticated && fecha) cargarConsultas();
   }, [fecha, authenticated]);
@@ -94,11 +176,9 @@ const VerConsultas = () => {
   };
 
   const formatFecha = (fechaString: string) => {
-    return new Date(fechaString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    // Parsear la fecha manualmente para evitar problemas de zona horaria
+    const [year, month, day] = fechaString.split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const formatHora = (timestamp: string) => {
@@ -216,6 +296,20 @@ const VerConsultas = () => {
                   />
                 </div>
               </div>
+
+              {/* Botón para descargar Excel */}
+              {fecha && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={descargarExcel}
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Download className="w-5 h-5" />
+                    {loading ? 'Descargando...' : 'Descargar mes en Excel'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
