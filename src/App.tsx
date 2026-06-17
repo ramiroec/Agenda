@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Calendar, ClipboardList, Menu, X, Phone } from 'lucide-react';
 import AgendarConsulta from './pages/AgendarConsulta';
 import VerConsultas from './pages/VerConsultas';
+import DiazGill from './pages/DiazGill';
+import MeyerLab from './pages/MeyerLab';
 import './App.css';
 
 // Navbar Component
@@ -56,6 +58,28 @@ function Navbar() {
             >
               <ClipboardList className="w-5 h-5" />
               <span>Ver Consultas</span>
+            </Link>
+            <Link
+              to="/diazgill"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                isActive('/diazgill')
+                  ? 'bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white shadow-lg shadow-blue-200'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-[#0066CC]'
+              }`}
+            >
+              <ClipboardList className="w-5 h-5" />
+              <span>Diaz Gill</span>
+            </Link>
+            <Link
+              to="/meyerlab"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                isActive('/meyerlab')
+                  ? 'bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white shadow-lg shadow-blue-200'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-[#0066CC]'
+              }`}
+            >
+              <ClipboardList className="w-5 h-5" />
+              <span>Meyer Lab</span>
             </Link>           
           </div>
 
@@ -132,6 +156,8 @@ function App() {
           <Routes>
             <Route path="/" element={<AgendarConsulta />} />
             <Route path="/consultas" element={<VerConsultas />} />
+            <Route path="/diazgill" element={<DiazGill />} />
+            <Route path="/meyerlab" element={<MeyerLab />} />
           </Routes>
         </main>
       </div>
