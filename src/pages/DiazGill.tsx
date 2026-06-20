@@ -6,7 +6,7 @@ const DiazGill = () => {
       companyKey="DiazGill"
       pageTitle="Consultas Diaz Gill"
       subtitle="Visualiza solo los agendamientos de Diaz Gill y sus variantes"
-      filterRegex={/Diaz\s*Gill|DiazGill|DiasGill/i}
+      filterRegex={/Diaz\s*Gill|DiazGill|DG|DiasGill/i}
     />
   );
 };
