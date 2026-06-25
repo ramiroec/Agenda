@@ -482,7 +482,7 @@ const ConsultasFiltradas = ({ companyKey, pageTitle, subtitle, filterRegex }: Co
                                         </p>
                                       </div>
                                     </div>
-                                  ))
+                                  )}
                                 </div>
                               </div>
                             </div>
