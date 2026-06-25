@@ -207,9 +207,10 @@ const ConsultasFiltradas = ({ companyKey, pageTitle, subtitle, filterRegex }: Co
   };
 
   const formatHora = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('es-ES', {
+    return new Date(timestamp).toLocaleTimeString('es-PY', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'America/Asuncion'
     });
   };
 
@@ -470,17 +471,18 @@ const ConsultasFiltradas = ({ companyKey, pageTitle, subtitle, filterRegex }: Co
                                       <div>
                                         <p className="text-xs text-gray-500 font-medium">Fecha de registro</p>
                                         <p className="text-sm text-gray-800 font-medium">
-                                          {new Date(c.creado_en).toLocaleDateString('es-ES', {
+                                          {new Date(c.creado_en).toLocaleDateString('es-PY', {
                                             day: '2-digit',
                                             month: '2-digit',
                                             year: 'numeric',
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            timeZone: 'America/Asuncion'
                                           })}
                                         </p>
                                       </div>
                                     </div>
-                                  )}
+                                  ))
                                 </div>
                               </div>
                             </div>
