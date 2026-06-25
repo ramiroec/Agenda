@@ -206,13 +206,16 @@ const ConsultasFiltradas = ({ companyKey, pageTitle, subtitle, filterRegex }: Co
     return `${day}/${month}/${year}`;
   };
 
-  const formatHora = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('es-PY', {
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'America/Asuncion'
-    });
-  };
+const formatHora = (timestamp: string) => {
+  // Si el timestamp no termina con 'Z', asumimos que está en UTC y lo forzamos
+  const utcStr = timestamp.endsWith('Z') ? timestamp : timestamp + 'Z';
+  const date = new Date(utcStr);
+  return date.toLocaleTimeString('es-PY', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Asuncion'
+  });
+};
 
   if (!authenticated) {
     return (
