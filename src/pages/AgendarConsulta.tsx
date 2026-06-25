@@ -38,14 +38,6 @@ const AgendarConsulta = () => {
       return;
     }
 
-    if (!isFechaValida(fecha)) {
-      setMensaje({
-        tipo: 'error',
-        texto: 'La fecha seleccionada no está disponible. Después de las 19:00 solo puedes agendar a partir del día posterior.'
-      });
-      return;
-    }
-
     setLoading(true);
     setMensaje(null);
 
@@ -210,29 +202,7 @@ const AgendarConsulta = () => {
     setMensaje(null);
   };
 
-  const getMinDate = () => {
-    const now = new Date();
-    const afterCutoff = now.getHours() > 19 || (now.getHours() === 19 && now.getMinutes() > 0);
-    const minDate = new Date(now);
-    minDate.setDate(minDate.getDate() + (afterCutoff ? 2 : 0));
-    return minDate.toISOString().split('T')[0];
-  };
 
-  const isFechaValida = (selectedDate: string) => {
-    if (!selectedDate) return false;
-
-    const now = new Date();
-    const afterCutoff = now.getHours() > 19 || (now.getHours() === 19 && now.getMinutes() > 0);
-    const minDate = new Date(now);
-    minDate.setHours(0, 0, 0, 0);
-    minDate.setDate(minDate.getDate() + (afterCutoff ? 2 : 0));
-
-    const fechaSeleccionada = new Date(selectedDate);
-    fechaSeleccionada.setHours(0, 0, 0, 0);
-    return fechaSeleccionada >= minDate;
-  };
-
-  const minDate = getMinDate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-50 relative overflow-hidden">
@@ -414,14 +384,9 @@ const AgendarConsulta = () => {
                       type="date"
                       value={fecha}
                       onChange={(e) => setFecha(e.target.value)}
-                      min={minDate}
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-[#00A8E8] focus:ring-4 focus:ring-sky-100 outline-none transition-all text-gray-800 cursor-pointer"
                     />
-                    {minDate !== new Date().toISOString().split('T')[0] && (
-                      <p className="mt-2 text-sm text-orange-600">
-                        Después de las 19:00 solo puedes agendar a partir del día posterior.
-                      </p>
-                    )}
                   </div>
                 </div>
 
