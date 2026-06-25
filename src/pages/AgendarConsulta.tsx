@@ -90,6 +90,7 @@ const AgendarConsulta = () => {
             empresa: empresa || null,
             cargo: cargo || null,
             fecha_consulta: fecha,
+            creado_en: new Date().toISOString(),
             motivo: motivoFinal,
             telefono: telefono || null,
             numero_documento: numeroDocumento || null,
