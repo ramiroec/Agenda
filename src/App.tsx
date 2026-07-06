@@ -19,21 +19,40 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo y título */}
-          <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105">
-            <img 
-              src="/medcheck.png" 
-              alt="MedCheck Logo" 
-              className="h-12 object-contain"
-            />
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-[#001F54]">
-                MedCheck
-              </h1>
-              <p className="text-xs text-[#0066CC] font-semibold tracking-wide hidden sm:block">
-                BIENESTAR CORPORATIVO
-              </p>
+          <div className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105">
+              <img 
+                src="/medcheck.png" 
+                alt="MedCheck Logo" 
+                className="h-12 object-contain"
+              />
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-[#001F54]">
+                  MedCheck
+                </h1>
+                <p className="text-xs text-[#0066CC] font-semibold tracking-wide hidden sm:block">
+                  BIENESTAR CORPORATIVO
+                </p>
+              </div>
+            </Link>
+
+            {/* Logo Díaz Gill y texto a la derecha del logo MedCheck */}
+            <div className="hidden sm:flex items-center ml-4 gap-3">
+              <img
+                src="/diazgill.png"
+                alt="Díaz Gill Logo"
+                className="h-12 object-contain"
+              />
+              <div className="flex flex-col leading-tight">
+                <span className="text-lg font-semibold text-slate-900 tracking-tight">
+                  Díaz Gill
+                </span>
+                <span className="text-xs uppercase tracking-[0.25em] text-slate-600">
+                  Laboratorio
+                </span>
+              </div>
             </div>
-          </Link>
+          </div>
 
           {/* Links desktop */}
           <div className="hidden md:flex items-center gap-3">
