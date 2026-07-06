@@ -13,46 +13,35 @@ function Navbar() {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isDiazGillDomain = hostname === 'agenda-diazgill.vercel.app';
+
+  const brandLogo = isDiazGillDomain ? '/diazgill.png' : '/medcheck.png';
+  const brandName = isDiazGillDomain ? 'Díaz Gill' : 'MedCheck';
+  const brandSubtitle = isDiazGillDomain ? 'LABORATORIO' : 'BIENESTAR CORPORATIVO';
+  const brandTextClass = isDiazGillDomain ? 'text-slate-900' : 'text-[#001F54]';
+  const brandSubtitleClass = isDiazGillDomain ? 'text-slate-600 uppercase tracking-[0.25em]' : 'text-xs text-[#0066CC] font-semibold tracking-wide hidden sm:block';
 
   return (
     <nav className="bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo y título */}
-          <div className="flex items-center gap-3 group">
-            <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105">
-              <img 
-                src="/medcheck.png" 
-                alt="MedCheck Logo" 
-                className="h-12 object-contain"
-              />
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-[#001F54]">
-                  MedCheck
-                </h1>
-                <p className="text-xs text-[#0066CC] font-semibold tracking-wide hidden sm:block">
-                  BIENESTAR CORPORATIVO
-                </p>
-              </div>
-            </Link>
-
-            {/* Logo Díaz Gill y texto a la derecha del logo MedCheck */}
-            <div className="hidden sm:flex items-center ml-4 gap-3">
-              <img
-                src="/diazgill.png"
-                alt="Díaz Gill Logo"
-                className="h-12 object-contain"
-              />
-              <div className="flex flex-col leading-tight">
-                <span className="text-lg font-semibold text-slate-900 tracking-tight">
-                  Díaz Gill
-                </span>
-                <span className="text-xs uppercase tracking-[0.25em] text-slate-600">
-                  Laboratorio
-                </span>
-              </div>
+          <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105">
+            <img 
+              src={brandLogo} 
+              alt={`${brandName} Logo`} 
+              className="h-12 object-contain"
+            />
+            <div>
+              <h1 className={`text-xl sm:text-2xl font-bold ${brandTextClass}`}>
+                {brandName}
+              </h1>
+              <p className={brandSubtitleClass}>
+                {brandSubtitle}
+              </p>
             </div>
-          </div>
+          </Link>
 
           {/* Links desktop */}
           <div className="hidden md:flex items-center gap-3">
