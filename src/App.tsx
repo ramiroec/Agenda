@@ -78,17 +78,19 @@ function Navbar() {
               <ClipboardList className="w-5 h-5" />
               <span>Diaz Gill</span>
             </Link>
-            <Link
-              to="/meyerlab"
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
-                isActive('/meyerlab')
-                  ? 'bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white shadow-lg shadow-blue-200'
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-[#0066CC]'
-              }`}
-            >
-              <ClipboardList className="w-5 h-5" />
-              <span>Meyer Lab</span>
-            </Link>           
+            {!isDiazGillDomain && (
+              <Link
+                to="/meyerlab"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                  isActive('/meyerlab')
+                    ? 'bg-gradient-to-r from-[#0066CC] to-[#00A8E8] text-white shadow-lg shadow-blue-200'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-[#0066CC]'
+                }`}
+              >
+                <ClipboardList className="w-5 h-5" />
+                <span>Meyer Lab</span>
+              </Link>
+            )}           
           </div>
 
           {/* Botón menú móvil */}
